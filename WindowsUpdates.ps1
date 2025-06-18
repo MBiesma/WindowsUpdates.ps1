@@ -1,3 +1,21 @@
+<#
+.SYNOPSIS
+    Windows Update Automation Script using PSWindowsUpdate
+
+.DESCRIPTION
+    Downloads and installs all available Windows updates,
+    logs the process, and reboots automatically if necessary.
+
+.VERSION
+    1.0.0
+
+.AUTHOR
+    Mark Biesma
+
+.DATE
+    2025-06-18
+#>
+
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Ensure log directory exists
