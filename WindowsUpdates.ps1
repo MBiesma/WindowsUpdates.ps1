@@ -7,10 +7,10 @@
     logs the process, and reboots automatically if necessary.
 
 .VERSION
-    1.0.0
+    1.1.0
 
 .AUTHOR
-    Mark Biesma
+    [Your Name or Organization]
 
 .DATE
     2025-06-18
@@ -28,15 +28,15 @@ if (-not (Test-Path $logPath)) {
 $date = Get-Date -Format 'yyyy-MM-dd'
 $logFile = "$logPath\$date-WindowsUpdate.log"
 
-# Ensure proper execution policy
-if ((Get-ExecutionPolicy) -ne 'RemoteSigned') {
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
+# Install and import PSWindowsUpdate module if not already available
+if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
+    Install-Module -Name PSWindowsUpdate -Force
 }
 
-# Install and import module
-Install-Module -Name PSWindowsUpdate -Force
-Import-Module PSWindowsUpdate
+Import-Module PSWindowsUpdate -Force
 
-# Fetch and install updates
+# Fetch updates and log results
 Get-WindowsUpdate -Download -AcceptAll | Out-File $logFile -Force -Encoding UTF8
+
+# Install updates and log results
 Install-WindowsUpdate -AcceptAll -Install -AutoReboot | Out-File $logFile -Force -Append -Encoding UTF8
