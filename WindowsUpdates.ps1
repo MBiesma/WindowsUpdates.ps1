@@ -10,7 +10,7 @@
     1.4.2
 
 .AUTHOR
-    [Your Name or Organization]
+    Mark Biesma
 
 .LINK
     https://github.com/MBiesma/WindowsUpdates.ps1
