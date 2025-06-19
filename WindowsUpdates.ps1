@@ -7,7 +7,7 @@
     logs the process (including errors), and reboots the system if necessary.
 
 .VERSION
-    1.4.1
+    1.4.2
 
 .AUTHOR
     [Your Name or Organization]
@@ -19,11 +19,11 @@
     2025-06-19
 #>
 
-# Re-run the script with ExecutionPolicy Bypass if not already
-if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage' -or
-    (Get-ExecutionPolicy) -ne 'Bypass') {
+# Only restart with ExecutionPolicy Bypass once
+if (-not $env:SCRIPT_EXEC_POLICY_BYPASS) {
     Write-Host "Restarting script with ExecutionPolicy Bypass..."
-    powershell.exe -ExecutionPolicy Bypass -NoProfile -File $MyInvocation.MyCommand.Path
+    $env:SCRIPT_EXEC_POLICY_BYPASS = "1"
+    powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -Command "& { [Environment]::SetEnvironmentVariable('SCRIPT_EXEC_POLICY_BYPASS','1','Process'); & '$($MyInvocation.MyCommand.Path)' }"
     exit
 }
 
