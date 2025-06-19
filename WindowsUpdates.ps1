@@ -7,13 +7,13 @@
     logs the process, and reboots automatically if necessary.
 
 .VERSION
-    1.1.0
+    1.2.0
 
 .AUTHOR
-    [Your Name or Organization]
+    Mark Biesma
 
 .DATE
-    2025-06-18
+    2025-06-19
 #>
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -28,9 +28,15 @@ if (-not (Test-Path $logPath)) {
 $date = Get-Date -Format 'yyyy-MM-dd'
 $logFile = "$logPath\$date-WindowsUpdate.log"
 
+# Zorg dat NuGet provider beschikbaar is zonder prompt
+$null = Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue
+if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
+}
+
 # Install and import PSWindowsUpdate module if not already available
 if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
-    Install-Module -Name PSWindowsUpdate -Force
+    Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser
 }
 
 Import-Module PSWindowsUpdate -Force
