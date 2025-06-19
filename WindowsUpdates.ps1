@@ -7,7 +7,7 @@
     logs the process (including errors), and reboots the system if necessary.
 
 .VERSION
-    1.4.2
+    1.4.3
 
 .AUTHOR
     Mark Biesma
@@ -17,6 +17,26 @@
 
 .DATE
     2025-06-19
+
+.NOTES
+    === USAGE INSTRUCTIONS ===
+
+    1. Save this script as:
+       C:\PSWindowsUpdate\WindowsUpdates.ps1
+
+    2. Create a new task in Windows Task Scheduler with the following settings:
+
+       - Action:
+         Program/script: powershell.exe
+
+       - Add arguments:
+         -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File "C:\PSWindowsUpdate\WindowsUpdates.ps1"
+
+    3. Ensure the task is configured to run with highest privileges ("Run with highest privileges").
+
+    4. The script will automatically create a log file in:
+       C:\PSWindowsUpdate
+
 #>
 
 # Only restart with ExecutionPolicy Bypass once
@@ -64,5 +84,4 @@ catch {
     Write-Error "[$(Get-Date -Format 'HH:mm:ss')] ERROR: $($_.Exception.Message)"
 }
 finally {
-    Stop-Transcript
-}
+    Stop-
