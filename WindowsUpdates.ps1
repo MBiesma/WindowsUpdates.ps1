@@ -7,7 +7,7 @@
     logs the process, and reboots the system if necessary.
 
 .VERSION
-    1.3.0
+    1.3.1
 
 .AUTHOR
     Mark Biesma
@@ -33,9 +33,9 @@ if (-not (Test-Path $logPath)) {
     New-Item -Path $logPath -ItemType Directory -Force | Out-Null
 }
 
-# Generate log file name based on current date
-$date = Get-Date -Format 'yyyy-MM-dd'
-$logFile = "$logPath\$date-WindowsUpdate.log"
+# Generate log file name with date and time (YYYYMMDD_HHmm)
+$timestamp = Get-Date -Format 'yyyyMMdd_HHmm'
+$logFile = "$logPath\$timestamp-WindowsUpdate.log"
 
 # Ensure NuGet provider is available without prompts
 $null = Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue
