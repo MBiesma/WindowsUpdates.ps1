@@ -3,11 +3,11 @@
     Windows Update Automation Script using PSWindowsUpdate
 
 .DESCRIPTION
-    Downloads and installs all available Windows updates,
-    logs the process, and reboots automatically if necessary.
+    Automatically installs all available Windows updates,
+    logs the process, and reboots the system if necessary.
 
 .VERSION
-    1.2.0
+    1.3.0
 
 .AUTHOR
     Mark Biesma
@@ -16,6 +16,15 @@
     2025-06-19
 #>
 
+# Re-run the script with ExecutionPolicy Bypass if not already
+if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage' -or
+    (Get-ExecutionPolicy) -ne 'Bypass') {
+    Write-Host "Restarting script with ExecutionPolicy Bypass..."
+    powershell.exe -ExecutionPolicy Bypass -NoProfile -File $MyInvocation.MyCommand.Path
+    exit
+}
+
+# Ensure TLS 1.2 for secure connection to PowerShell Gallery
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Ensure log directory exists
@@ -24,25 +33,23 @@ if (-not (Test-Path $logPath)) {
     New-Item -Path $logPath -ItemType Directory -Force | Out-Null
 }
 
-# Date for log file
+# Generate log file name based on current date
 $date = Get-Date -Format 'yyyy-MM-dd'
 $logFile = "$logPath\$date-WindowsUpdate.log"
 
-# Zorg dat NuGet provider beschikbaar is zonder prompt
+# Ensure NuGet provider is available without prompts
 $null = Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue
 if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
 }
 
-# Install and import PSWindowsUpdate module if not already available
+# Install PSWindowsUpdate module if not already installed
 if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
     Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser
 }
 
+# Import the module
 Import-Module PSWindowsUpdate -Force
 
-# Fetch updates and log results
-Get-WindowsUpdate -Download -AcceptAll | Out-File $logFile -Force -Encoding UTF8
-
 # Install updates and log results
-Install-WindowsUpdate -AcceptAll -Install -AutoReboot | Out-File $logFile -Force -Append -Encoding UTF8
+Install-WindowsUpdate -AcceptAll -Install -AutoReboot | Out-File $logFile -Force -Encoding UTF8
