@@ -4,10 +4,10 @@
 
 .DESCRIPTION
     Automatically installs all available Windows updates,
-    logs the process, and reboots the system if necessary.
+    logs the process (including errors), and reboots the system if necessary.
 
 .VERSION
-    1.3.1
+    1.4.0
 
 .AUTHOR
     Mark Biesma
@@ -33,23 +33,33 @@ if (-not (Test-Path $logPath)) {
     New-Item -Path $logPath -ItemType Directory -Force | Out-Null
 }
 
-# Generate log file name with date and time (YYYYMMDD_HHmm)
+# Generate timestamped log file name
 $timestamp = Get-Date -Format 'yyyyMMdd_HHmm'
 $logFile = "$logPath\$timestamp-WindowsUpdate.log"
 
-# Ensure NuGet provider is available without prompts
-$null = Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue
-if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
-    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
+# Start full transcript logging
+Start-Transcript -Path $logFile -Force
+
+try {
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Ensuring NuGet provider is installed..."
+    $null = Get-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue
+    if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
+    }
+
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Ensuring PSWindowsUpdate module is installed..."
+    if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
+        Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser
+    }
+
+    Import-Module PSWindowsUpdate -Force
+
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Starting Windows Update installation..."
+    Install-WindowsUpdate -AcceptAll -Install -AutoReboot -IgnoreReboot
 }
-
-# Install PSWindowsUpdate module if not already installed
-if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
-    Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser
+catch {
+    Write-Error "[$(Get-Date -Format 'HH:mm:ss')] ERROR: $($_.Exception.Message)"
 }
-
-# Import the module
-Import-Module PSWindowsUpdate -Force
-
-# Install updates and log results
-Install-WindowsUpdate -AcceptAll -Install -AutoReboot | Out-File $logFile -Force -Encoding UTF8
+finally {
+    Stop-Transcript
+}
