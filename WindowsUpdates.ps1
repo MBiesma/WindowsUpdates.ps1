@@ -7,10 +7,13 @@
     logs the process (including errors), and reboots the system if necessary.
 
 .VERSION
-    1.4.0
+    1.4.1
 
 .AUTHOR
-    Mark Biesma
+    [Your Name or Organization]
+
+.LINK
+    https://github.com/MBiesma/WindowsUpdates.ps1
 
 .DATE
     2025-06-19
