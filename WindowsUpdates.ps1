@@ -7,7 +7,7 @@
     logs the process (including errors), and reboots the system if necessary.
 
 .VERSION
-    1.4.3
+    1.4.4
 
 .AUTHOR
     Mark Biesma
@@ -84,4 +84,5 @@ catch {
     Write-Error "[$(Get-Date -Format 'HH:mm:ss')] ERROR: $($_.Exception.Message)"
 }
 finally {
-    Stop-
+    Stop-Transcript
+}
